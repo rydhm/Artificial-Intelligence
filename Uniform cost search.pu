@@ -1,0 +1,62 @@
+import heapq  # Import the heapq module for the priority queue  
+  
+def uniform_cost_search(graph, start, goal):  
+    # Priority queue to store nodes with their costs  
+    pq = []  
+    heapq.heappush(pq, (0, start))  # Add start node with cost 0  
+    costs = {node: float('inf') for node in graph}  # Initialize costs to infinity  
+    costs[start] = 0  # Cost to reach the start node is 0  
+    parents = {}  # Parent nodes  
+    visited = set()  # Visited nodes  
+  
+    while pq:  
+        # Dequeue node with the lowest cost  
+        current_cost, current_node = heapq.heappop(pq)  
+  
+        if current_node == goal:  
+            return construct_path(parents, goal)  
+  
+        if current_node in visited:  
+            continue  
+  
+        visited.add(current_node)  
+  
+        # Explore neighbors  
+        for neighbor, cost in graph[current_node].items():  
+            new_cost = costs[current_node] + cost  
+  
+            if new_cost < costs[neighbor]:  
+                costs[neighbor] = new_cost  
+                parents[neighbor] = current_node  
+                heapq.heappush(pq, (new_cost, neighbor))  
+  
+    return "No path found"  
+  
+def construct_path(parents, goal):  
+    path = []  
+    current_node = goal  
+  
+    while current_node is not None:  
+        path.append(current_node)  
+        current_node = parents.get(current_node)  
+  
+    return list(reversed(path))  
+  
+# Example usage:  
+graph = {  
+    'A': {'B': 1, 'C': 4},  
+    'B': {'D': 3, 'E': 7},  
+    'C': {'F': 2},  
+    'D': {'F': 5},  
+    'E': {'F': 2},  
+    'F': {}  
+}  
+  
+start_node = 'A'  
+goal_node = 'F'  
+path = uniform_cost_search(graph, start_node, goal_node)  
+  
+if path != "No path found":  
+    print("Shortest Path:", "->".join(path))  
+else:  
+    print("No path found")  
