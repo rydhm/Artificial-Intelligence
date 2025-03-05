@@ -1,0 +1,71 @@
+import heapq
+
+class Node:
+    def __init__(self, name, cost=0, parent=None):
+        self.name = name
+        self.cost = cost  # Cost to reach this node
+        self.parent = parent  # Parent node for path reconstruction
+
+    def __lt__(self, other):
+        return self.cost < other.cost  # Comparison based on the cost for priority queue
+
+class UniformCostSearch:
+    def __init__(self, graph, start, goal):
+        self.graph = graph  # Dictionary of the form: {node: {neighbor: cost}}
+        self.start = start
+        self.goal = goal
+
+    def search(self):
+        # Priority queue initialized with the start node and cost 0
+        frontier = []
+        heapq.heappush(frontier, Node(self.start, 0))
+        
+        # Set to track visited nodes
+        visited = set()
+
+        while frontier:
+            # Pop the node with the lowest cost
+            current_node = heapq.heappop(frontier)
+            
+            # If the goal is found, reconstruct the path
+            if current_node.name == self.goal:
+                return self.reconstruct_path(current_node)
+
+            # Mark the node as visited
+            if current_node.name in visited:
+                continue
+            visited.add(current_node.name)
+
+            # Expand the neighbors
+            for neighbor, cost in self.graph[current_node.name].items():
+                if neighbor not in visited:
+                    total_cost = current_node.cost + cost
+                    heapq.heappush(frontier, Node(neighbor, total_cost, current_node))
+        
+        return None  # If no path is found
+
+    def reconstruct_path(self, node):
+        path = []
+        while node is not None:
+            path.append(node.name)
+            node = node.parent
+        path.reverse()
+        return path
+
+# Example usage:
+if __name__ == "__main__":
+    # A graph represented as an adjacency list with costs
+    graph = {
+        'A': {'B': 1, 'C': 4},
+        'B': {'A': 1, 'C': 2, 'D': 5},
+        'C': {'A': 4, 'B': 2, 'D': 1},
+        'D': {'B': 5, 'C': 1}
+    }
+
+    ucs = UniformCostSearch(graph, 'A', 'D')
+    path = ucs.search()
+
+    if path:
+        print(f"Path found: {' -> '.join(path)}")
+    else:
+        print("No path found.")
